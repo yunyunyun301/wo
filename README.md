@@ -4,5 +4,5 @@
 int main(){
     return 0;
 }
-```python
+```py
 print("hello")
