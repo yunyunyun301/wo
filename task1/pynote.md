@@ -752,3 +752,224 @@ __all__ = ['模块名1','模块名2'...] #当使用from 包名 import *导入包
 
 9.4.3 包可以嵌套包：包中可以包含子包，子包中可以包含模块，导入子包中的模块时需要使用包名.子包名.模块名.函数名调用模块中的函数
 
+## 十.面向对象编程
+
+10.1 面向对象与面向过程
+
+面向对象：以对象为中心，强调数据和操作数据的函数的结合，适合解决复杂问题
+
+面向过程：以过程为中心，强调函数的调用和执行，适合解决简单问题
+
+10.2 类和对象
+
+类：是对一类事物的抽象，定义了这类事物的属性和方法
+
+
+对象：是类的实例，具有类的属性和方法，可以通过对象调用类的方法
+
+先有类再有对象，类是对象的模板，对象是类的实例
+
+10.2.1 类的三要素
+
+1. 类名：遵循标识符命名规则，首字母大写，多个单词使用驼峰命名法
+2. 属性：描述对象的特征，通常在\_\_init\_\_方法中定义，self.属性名 = 属性值
+3. 方法：描述对象的行为，函数定义在类的内部，第一个参数必须是self，表示对象本身，可以通过self访问对象的属性和方法
+
+10.2.2 定义类
+
+基本格式：
+```py
+class 类名:
+    变量名 = 变量值 #类属性，所有对象共享
+    def __init__(self,参数1,参数2...):
+        self.属性1 = 参数1
+        self.属性2 = 参数2...
+    def 方法1(self,参数1,参数2...):
+        #方法体
+    def 方法2(self,参数1,参数2...):
+        #方法体
+```
+
+查看类的属性 ：类名.属性名
+
+10.2.3 创建对象
+
+创建对象的过程也叫实例化对象
+
+格式：对象名 = 类名(实参1，实参2...)
+```py
+class Person:
+    def __init__(self,name,age):
+        self.name = name
+        self.age = age
+person1 = Person('Alice',30) #创建对象person1，传入实参'Alice'和30，调用__init__方法，初始化对象的属性
+print(person1.name) #Alice，访问对象person1的name属性
+print(person1.age) #30，访问对象person1的age属性
+```
+
+10.2.4 实例方法和实例属性
+
+1. 实例方法
+ 
+    由对象调用，至少有一个参数self，方法体内可以访问对象的属性和方法
+```py
+class Washer:
+    height =800 #类属性，所有对象共享
+    def wash(self): 
+#实例方法至少有一个参数self，当对象调用实例方法时，会自动传入对象本身的引用作为参数，传递到实例方法的self参数中
+        print('洗衣服')
+wa1 = Washer() #创建对象wa1
+wa1.wash() #调用对象wa1的wash方法，输出洗衣服
+```
+
+2. 实例属性
+   
+     由对象调用，实例属性在\_\_init\_\_方法中定义，实例属性的值可以不同，每个对象都有自己的实例属性
+```py
+class Person:
+    def __init__(self,name,age):
+        self.name = name #实例属性name
+        self.age = age #实例属性age
+person1 = Person('Alice',30) #创建对象person1，传入实参'Alice'和30，调用__init__方法，初始化对象的属性
+person2 = Person('Bob',25) #创建对象person2，传入实参'Bob'和25，调用__init__方法，初始化对象的属性
+print(person1.name) #Alice，访问对象person1的name属性
+print(person1.age) #30，访问对象person1的age属性
+print(person2.name) #Bob，访问对象person2的name属性     
+print(person2.age) #25，访问对象person2的age属性
+```
+
+10.2.5 构造函数 \_\_init\_\_()
+
+定义：在创建对象时自动调用的方法，用于初始化对象的**属性**
+
+10.2.6 析构函数 \_\_del\_\_()
+
+删除对象的时候，解释器会默认调用\_\_del\_\_方法
+
+```py
+class Person :
+    def __init__(self):
+        print('这是__init__')
+    def __del__(self):
+        print('被销毁了')
+p=Person()
+del p #删除p这个对象
+#正常运行时，不会调用__del__(),对象执行结束后，系统会自动调用__del__()
+```
+
+## 十一 面向对象的三大特性
+
+面向对象的三大特性
+
+1. 封装
+2. 继承
+3. 多态
+
+11.1 封装
+
+封装：指的是隐藏对象中一些不希望被外部所访问到的属性或方法
+
+11.1.1
+* 隐藏属性/方法（私有权限）：**只允许在类的内部使用**，无法通过对象访问
+* 语法：在属性名或者方法名前面加上两个下划线
+
+```py
+class Person:
+     name = 'manba'#类属性
+     __age =41     #隐藏属性
+     def man(self):
+        print(self.__age)          #可正常访问
+
+pe=Person()
+print(pe.name)     
+print(pe.__age)    #报错，'Person' object has no attribute '__age'
+#隐藏属性实际上是将名字修改为：_类名__属性名
+print(pe._Person__age) #正常访问age属性
+```
+11.1.2<br>
+* 私有属性/方法 ：_属性名/方法名 声明私有属性/方法，如果定义在类中，外部可以使用，子类也可以继承，但是在另一个py文件中通过from xxx import *导入时，无法导入。
+
+11.2 继承
+
+* 让类和类之间的关系转变为父子关系，子类默认继承父类的属性和方法
+
+11.2.1 单继承语法
+
+class  子类名(父类名):
+
+
+
+```py
+class Person:
+    def man(self):
+        print("what can i say")
+class Person1(Person): #Person 类的子类
+    pass #占位符，代码类下面不写任何东西，会自动跳过，不会报错
+laoda=Person1()
+laoda.man() #what can i say
+```
+总结：子类可以继承父类的属性和方法。
+
+11.2.2 继承的传递(多重传递)
+
+```py
+class Father :
+    def hhh(self):
+        print('hhh')
+class Son(Father):   #Father的子类
+    pass
+class Grandson(Son): #Son的子类
+    pass
+man = Grandson()
+man.hhh()   #hhh
+```
+
+11.3 重写
+
+11.3.1 覆盖父类方法
+
+```py
+class Father :     
+    def hhh(self):
+        print('hhh')
+class Son(Father):   #Father的子类
+    def hhh(self):   #覆盖父类的方法
+        print('xxx')
+man = Son()
+man.hhh()   #xxx
+```
+
+11.3.2 扩展
+
+继承父类的方法，子类也有自己的方法
+
+1. 父类名.方法名(self)
+```py
+class Father :     
+    def hhh(self):
+        print('hhh')
+class Son(Father):   #Father的子类
+    def hhh(self):  
+        Father.hhh(self)
+        print('xxx')   #新增的功能
+man = Son()
+man.hhh()   #hhh
+            #xxx
+```
+2. super().方法名() --建议使用
+   
+   **另外写法**:super(子类名,self).方法名()
+
+   super在python中是特殊的类，super()是使用super类创建出来的对象，可以调用父类的方法
+```py
+class Father :     
+    def hhh(self):
+        print('hhh')
+class Son(Father):   #Father的子类
+    def hhh(self):  
+        super().hhh()  #可以调用父类的方法
+        print('xxx')   #新增的功能
+man = Son()
+man.hhh()   #hhh
+            #xxx
+```
