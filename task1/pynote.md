@@ -865,11 +865,11 @@ del p #删除p这个对象
 2. 继承
 3. 多态
 
-11.1 封装
+### 11.1 封装
 
 封装：指的是隐藏对象中一些不希望被外部所访问到的属性或方法
 
-11.1.1
+#### 11.1.1
 * 隐藏属性/方法（私有权限）：**只允许在类的内部使用**，无法通过对象访问
 * 语法：在属性名或者方法名前面加上两个下划线
 
@@ -886,18 +886,18 @@ print(pe.__age)    #报错，'Person' object has no attribute '__age'
 #隐藏属性实际上是将名字修改为：_类名__属性名
 print(pe._Person__age) #正常访问age属性
 ```
-11.1.2<br>
+#### 11.1.2<br>
 * 私有属性/方法 ：_属性名/方法名 声明私有属性/方法，如果定义在类中，外部可以使用，子类也可以继承，但是在另一个py文件中通过from xxx import *导入时，无法导入。
 
-11.2 继承
+### 11.2 继承
 
 * 让类和类之间的关系转变为父子关系，子类默认继承父类的属性和方法
 
-11.2.1 单继承语法
+#### 11.2.1 单继承
+
+语法
 
 class  子类名(父类名):
-
-
 
 ```py
 class Person:
@@ -910,7 +910,7 @@ laoda.man() #what can i say
 ```
 总结：子类可以继承父类的属性和方法。
 
-11.2.2 继承的传递(多重传递)
+#### 11.2.2 继承的传递(多重传递)
 
 ```py
 class Father :
@@ -923,10 +923,34 @@ class Grandson(Son): #Son的子类
 man = Grandson()
 man.hhh()   #hhh
 ```
+#### 11.2.3  多继承
 
-11.3 重写
+一个子类可以拥有多个父类，并且具有所有父类的属性和方法
 
-11.3.1 覆盖父类方法
+```py
+class Father1:      #父类1
+    def hhh(self):
+        print("HHH")
+class Father2:      #父类2
+    def hhh(self):
+        print("hhh")
+    
+class Son(Father1,Father2):   #子类
+    pass
+son = Son()
+son.hhh()            #HHH,当不同父类存在相同名字的方法，采用就近原则
+print(Son.__mro__)   #查看搜索顺序
+```
+
+多继承的弊端
+
+* 容易引发冲突
+* 导致代码复杂度增加
+
+
+### 11.3 重写
+
+#### 11.3.1 覆盖
 
 ```py
 class Father :     
@@ -939,7 +963,7 @@ man = Son()
 man.hhh()   #xxx
 ```
 
-11.3.2 扩展
+#### 11.3.2 扩展
 
 继承父类的方法，子类也有自己的方法
 
@@ -973,3 +997,192 @@ man = Son()
 man.hhh()   #hhh
             #xxx
 ```
+
+#### 11.3.3    新式类
+
+class A(object)      
+ 
+新式类 ：继承了object类或者该类的子类都是新式类
+
+object --python为所有对象提供的基类(顶级父类),提供了一些内置的属性和方法，可以使用dir()查看
+```py
+print(dir(object))
+```
+python3中如果一个类没有继承任何类，则默认继承object类，因此python3都是新式类
+
+### 11.4 多态
+
+指同一种行为具有不同的表现形式
+
+ 多态的前提
+
+* 继承
+* 重写
+
+#### 11.4.1 多态性：一种调用方式，不同的执行结果
+```py
+class Animal(object):
+    def shout(self):
+        print("叫")
+class Cat(Animal):
+    def shout(self):
+        print("喵")
+class Dog(Animal):
+    def shout(self):
+        print("汪")
+cat = Cat()
+dog = Dog()
+def test(obj):     #test函数传入不同的对象，执行不同对象的方法
+    obj.shout()
+test(cat)
+test(dog)
+```
+
+### 11.5 静态方法
+
+使用@staticmethod来进行修饰。静态方法没有self,cls参数限制
+
+静态方法与类无关，可以被转换成函数使用
+```py
+class Person(object):
+    @staticmethod
+    def hhh():
+        print("hhh")
+#静态方法既可以通过对象访问，也可以使用类访问
+Person.hhh()
+pe = Person()
+pe.hhh()
+```
+取消了不必要的参数传递，有利于减少不必要的内存占用和性能消耗
+
+### 11.6 类方法
+
+使用装饰器@classmethod来标识为类方法。对于类方法，第一个参数必须是类对象，一般以cls作为第一个参数
+
+    class 类名：
+
+        @classmethod
+        def 方法名(cls,参数)：
+            方法体
+类方法内部可以访问类属性，或者调用其他类方法
+
+```py
+class Person(object):
+    @classmethod
+    def hhh(cls):   #cls代表类对象本身，类本质上是一个对象
+        print(cls,":","hhh")
+Person.hhh()        #调用类方法,<class '__main__.Person'> : hhh
+```
+
+当方法中需要使用到类对象（如访问私有类属性等），定义类方法
+
+类方法一般配合类属性使用
+
+总结：
+
+* 实例方法：方法内部可以访问实例属性也可以访问类属性
+* 静态方法：不需要访问实例属性和类属性时使用，不能访问实例属性
+* 类方法：方法内部只能访问类属性，不能访问实例属性
+
+## 十二 单例模式
+
+### 12.1 \_\_new__
+
+作用：
+
+1. 在内存中为对象分配空间
+2. 返回对象的引用
+   
+一个对象实例化过程，首先执行__new__(),返回一个实例对象，然后再调用__init__()初始化对象
+```py
+class Person(object):
+    def __new__(cls,*args,**kwargs):
+        print("这是new方法")
+        return super().__new__(cls)
+    def __init__(self):#初始化
+        print('这是init方法')
+pe=Person()
+                                    # 这是new方法
+                                    # 这是init方法
+
+```
+### 12.2 单例模式
+
+**定义:** 单例模式是一种保证某个类在程序运行期间只有一个实例存在，并提供一个全局访问点的设计模式。
+
+* 优点：节省内存空间
+* 弊端：多线程访问时容易引发线程安全问题
+
+**方式：**
+
+1. 通过@classmethod
+2. 通过装饰器实现
+3. 通过重写__new__()实现
+4. 通过导入模块实现
+
+#### 12.2.1通过重写__new__()实现
+
+设计流程
+
+1. 定义一个类属性，初始值为None,用来记录单例对象的引用
+2. 重写__new__()
+3. 进行判断，如果类属性是None,把__new__()返回的对象引用保存
+4. 返回类属性中记录的对象引用
+```py
+class A(object):
+     obj = None
+     def __new__(cls,*args,**kwargs):
+        print("这是__new__()")
+        if cls.obj ==None:
+            A.obj = super().__new__(cls)
+        return A.obj
+        
+a1 = A()
+a2 = A()            #相当于把a1的引用赋给a2
+print(a1,a2)        #内存地址相同
+```
+#### 12.2.2 通过导入模块实现单例模式
+
+from 模块  import 对象 as 别名1<br>
+from 模块  import 对象 as 别名2
+
+模块就是天然的单例模式
+
+应用：
+
+1. 音乐播放器
+2. 游戏软件
+3. 数据库配置
+
+
+## 十三 魔法方法
+
+### 13.1 __doc__():类的描述信息
+```py
+class Person(object):
+    """人的描述信息"""
+    pass
+print(Person.__doc__)
+```
+### 13.2 \_\_module__:表示当前操作对象所在的模块
+### 13.3 \_\_class__:表示当前操作对象所在的类
+### 13.4 \_\_str__():如果类中定义了此方法，在打印对象时，默认输出该对象的返回值
+
+* **\_\_str__()返回值必须为字符串**
+
+### 13.5 \_\_call__():使一个实例对象成为一个可调用对象
+
+*  callable():判断一个对象是否是可调用对象
+  
+```py
+class A(object) :
+    def __call__(self,*args,**kwargs):#调用一个实例对象，实际上在调用它的__call__()方法
+        print("这是可调用对象")
+a=A()
+a()
+```
+
+### 13.6__dict__:查看类或对象中的所有属性,以字典形式返回
+
+
+
