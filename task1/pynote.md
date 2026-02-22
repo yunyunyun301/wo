@@ -1084,7 +1084,7 @@ Person.hhh()        #调用类方法,<class '__main__.Person'> : hhh
 * 静态方法：不需要访问实例属性和类属性时使用，不能访问实例属性
 * 类方法：方法内部只能访问类属性，不能访问实例属性
 
-## 十二 单例模式
+## 十二. 单例模式
 
 ### 12.1 \_\_new__
 
@@ -1155,7 +1155,7 @@ from 模块  import 对象 as 别名2
 3. 数据库配置
 
 
-## 十三 魔法方法
+## 十三. 魔法方法
 
 ### 13.1 __doc__():类的描述信息
 ```py
@@ -1184,7 +1184,7 @@ a()
 
 ### 13.6__dict__:查看类或对象中的所有属性,以字典形式返回
 
-## 十四 文件
+## 十四. 文件
 
 ### 14.1 文件基本操作
 
@@ -1274,7 +1274,7 @@ import os
    
      *os.listdir('../') ：获取上级目录列表
 
-## 十五 迭代器,生成器
+## 十五.迭代器,生成器
 
 ### 15.1 可迭代对象
 
@@ -1349,4 +1349,354 @@ class Myiter (object):
             raise StopIteration
 for i in Myiter(5):         #循环5次
     print(i)                #0,1,2,3,4
+```
+
+### 15.5 生成器
+
+#### 15.5.1 生成器表达式
+
+结果 = (表达式 for 变量 in 列表)
+
+#### 15.5.2 生成器函数
+
+python中，使用了yield关键字的函数称之为生成器函数
+
+yield的作用：
+1. 类似return，将指定值或者多个值返回给调用者
+2. yield语句一次返回一个结果，然后挂起函数，执行next(),再重新从挂起点继续往下执行
+```py
+def gen(n):
+    a = 0
+    while a<n:
+        yield a
+        a+=1
+for i in gen(5):
+    print(i)
+```
+
+### 15.6 可迭代对象、迭代器和生成器三者关系 
+
+* 可迭代对象：可以通过for循环遍历的对象，包括了迭代器和生成器
+* 迭代器：可以记住自己遍历位置的对象，可以使用next（）函数返回值，只能往前不能往后。
+* 生成器：特殊的迭代器，是python提供的通过简便的方法写出迭代器的一种手段
+
+## 16.线程、进程
+
+### 16.1 多线程
+#### 16.1.1
+进程：操作系统进行资源分配的基本单位，每打开一个程序至少有一个进程
+
+线程：cpu调度的基本单位，每一个进程都至少有一个线程
+
+导入线程模块
+```py
+import threading
+```
+Thread线程类参数
+
+target ：执行的任务名<br>
+args：以元组的形式给任务传参<br>
+kwargs：以字典的形式给任务传参<br>
+
+```py
+import threading
+import time
+def func1(x):
+    print(f"这是线程{x}")
+    time.sleep(3)
+    print(f'线程{x}执行完了')
+def func2(x):
+    print(f"这是线程{x}")
+    time.sleep(2)
+    print(f'线程{x}执行完了')
+if __name__=='__main__':
+    t1 =threading.Thread(target=func1,args=(1,))#以元组的形式传参
+    t2 =threading.Thread(target=func2,args=(2,))
+    #后台线程daemon:必须放在start()前面，主线程执行结束，子线程立即结束
+    t1.daemon=True
+    t2.daemon=True  
+    #开始子线程start()
+    t1.start()
+    t2.start()
+    #阻塞线程join():必须放在start()后面，暂停主线程，等子线程执行结束，主线程才会继续执行
+    t1.join()
+    t2.join()
+    time.sleep(2)
+    #获取线程名
+    print("t1的进程名:",t1.name)
+    print('t2的进程名:',t2.name)
+    #更改线程名
+    t1.name='子线程一'
+    t2.name='子线程二'
+    print("t1的进程名:",t1.name)
+    print('t2的进程名:',t2.name)
+    print("主线程执行完了")
+```
+
+#### 16.1.2 线程之间的执行是无序的
+#### 16.1.3 线程间共享资源
+#### 16.1.4 资源竞争
+
+```py
+import threading
+a=0
+b=10000000
+def add1():
+    for i in range(b):
+        global a
+        a+=1
+    print('第一次累加：',a)
+def add2():
+    for i in range(b):
+        global a
+        a+=1
+    print('第二次累加：',a)
+if __name__=='__main__':
+    a1 = threading.Thread(target=add1)
+    a2 = threading.Thread(target=add2)
+    a1.start()
+    a2.start()
+```
+
+#### 16.1.5 线程同步
+
+主线程和创建的子线程间各自执行完自己的代码直至结束
+
+#### 16.1.6 互斥锁
+
+概念：对共享数据进行锁定，保证多个线程访问共享数据不会出现数据错误问题
+
+* acquire():上锁
+* release():释放锁
+
+**注意**：两种方法必须成对出现，否则容易造成死锁
+
+```py
+import threading
+lock =threading.Lock() #创建全局锁
+a=0
+b=10000000
+def add1():
+    lock.acquire()     #上锁
+    for i in range(b):
+        global a
+        a+=1
+    print('第一次累加：',a)
+    lock.release()     #解锁
+def add2():
+    lock.acquire()     #上锁
+    for i in range(b):
+        global a
+        a+=1
+    print('第二次累加：',a)
+    lock.release()     #解锁
+if __name__=='__main__':
+    a1 = threading.Thread(target=add1)
+    a2 = threading.Thread(target=add2)
+    a1.start()
+    a2.start()
+```
+
+互斥锁的作用：保证同一时刻只有一个线程去操作共享数据。
+
+互斥锁的缺点：影响代码执行效率
+
+### 16.2进程 
+#### 16.2.1 含义
+进程 ：操作系统进行资源分配和调度的基本单位，是操作系统结构的基础，进程里可以创建多个线程。
+
+#### 16.2.2 进程的状态
+
+1. 就绪状态：运行的条件都已满足，正在等待cpu执行
+2. 执行状态：cpu正在执行其功能
+3. 等待(阻塞)状态：等待某些条件的满足          
+
+#### 16.2.3 进程语法结构
+
+multiprocessing模块提供了Process类代表进程对象
+
+Process类参数
+1. target：执行的目标任务名，即子进程要执行的任务
+2. args:以元组形式传参
+3. kwargs:以字典形式传参
+
+常用方法：
+1. start():开启子进程
+2. is_alive():判断子进程是否存活，存活返回True,死亡返回False
+3. join():阻塞主进程等待子进程执行结束
+
+常用属性
+1. name:当前进程的别名。
+2. pid:当前进程的编号
+
+```py
+import multiprocessing
+import os
+def func1():
+    #os.getpid()获取当前进程编号
+    print(f"Process1 pid:{os.getpid()}")
+def func2():
+    print(f"Process2 pid:{os.getpid()}")
+if __name__ =="__main__":
+    p1 = multiprocessing.Process(target=func1,name='进程1')
+    p2 = multiprocessing.Process(target=func2,name='进程2')
+    #获取主进程编号pid
+    print('这是主进程pid:',os.getpid())
+    #获取主进程的父进程pid
+    print('这是主进程的父进程pid:',os.getppid())
+    #开启进程
+    p1.start()
+    p2.start()
+    #查看子进程编号
+    # print(p1.pid)
+    # print(p2.pid)
+    #查看子进程别名
+    # print(p1.name)
+    # print(p2.name)
+```
+
+#### 16.2.4 进程间不共享全局变量
+
+#### 16.2.5 进程间的通信
+
+导入 Queue模块
+
+from queue import Queue
+
+**q.put():** 放入数据<br>
+**q.get():** 取出数据<br>
+**q.empty():** 判断队列是否为空<br>
+**q.qsize():** 返回当前队列包含的消息数量<br>
+**q.full():** 判断进程是否已满<br>
+
+```py
+from queue import Queue
+#初始化一个队列队形
+q = Queue(3)   # 最多可以接收3条消息，空或者负值表示没有上限
+q.put('第一条消息') # 载入消息
+q.put('第二条消息')
+q.put('第三条消息')
+print(q.full())  #True
+print(q.get())   #获取队列的一条消息,然后将其从队列中移除
+print(q.get())
+print(q.qsize()) #返回队列中消息的数量
+print(q.get())
+print(q.empty())#True
+```
+
+#### 16.2.6 进程操作队列
+```py
+import multiprocessing
+q1=multiprocessing.Queue()
+def func1(q):
+    for i in range(5):
+        q.put(i)
+        print(f"{i}正在写入队列") 
+def func2(q):
+    while not q.empty():
+        print(q.get())
+if __name__ =='__main__':
+    p1=multiprocessing.Process(target=func1,args=(q1,))        
+    p2=multiprocessing.Process(target=func2,args=(q1,))
+    p1.start()
+    p1.join()
+    p2.start()
+```
+### 16.3 进程池
+
+#### 16.3.1 阻塞和非阻塞
+
+阻塞:程序遇到阻塞操作就停在原地，并立即释放cpu资源<br>
+非阻塞：没有I/O操作或者通过其他方法让程序即使遇到I/O操作，也不会停止，而去执行其他操作，尽可能多的占用cpu资源。
+#### 16.3.2 同步和异步
+
+同步调用：提交完任务后，就在原地等待，直到任务运行完毕，才继续执行下一行代码<br>
+异步调用：提交完任务后，不会在原地等待，直接执行下一行代码
+
+#### 16.3.3 进程池
+异步apply_async：不用等待当前进程执行完毕，随时根据系统调度来进行进程切换
+```py
+import time
+from multiprocessing import Pool
+
+def square(n):
+    print('在计算')
+    time.sleep(2)
+    return n**2
+
+if __name__ =='__main__':
+    p=Pool(3) #创建进程池，最大进程数为3
+    list1=[]
+    for i in range(6):
+        #apply_async异步
+        result = p.apply_async(square,args=(i,))#square 函数名
+        list1.append(result)
+    p.close() #关闭进程池，不再接收新的请求
+    p.join()  #等待所有子进程完毕
+    for i in list1:
+        #使用get()获取结果
+        print(i.get())
+```
+同步：apply同步阻塞，等待当前子进程执行完毕后，再执行下一个进程
+```py
+# 异步：不用等待当前进程执行完毕，随时根据系统调度来进行进程切换
+import time
+from multiprocessing import Pool
+
+def square(n):
+    print('在计算')
+    time.sleep(2)
+    return n**2
+
+if __name__ =='__main__':
+    p=Pool(1) #创建进程池，最大进程数为1
+    list1=[]
+    for i in range(6):
+        #apply_async异步
+        result = p.apply(square,args=(i,))#square 函数名
+        list1.append(result)
+    p.close() #关闭进程池，不再接收新的请求
+    p.join()  #等待所有子进程完毕
+    print(list1)
+```
+
+#### 16.3.4 进程池的通信
+
+Pool创建进程池，需要使用multiprocessing.Manager()中的Queue()
+
+进程间的通信：multiprocessing.Queue()
+
+线程间的通信：queue.Queue()
+
+manager 模块，用于数据共享,支持很多类型：如value，array，list等等
+
+**队列实例化** q= Manager().Queue()
+```py
+import os
+import multiprocessing
+
+def wd(q):
+    print(f'wd的pid:{os.getpid()},父进程pid:{os.getppid()}')
+    for i in '123':
+        print('正在写入', i)
+        q.put(i)
+    q.put(None)  # 发送哨兵，通知消费者结束
+
+def rd(q):
+    print(f'rd的pid:{os.getpid()},父进程pid:{os.getppid()}')
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        print("取出数据:", item)
+
+if __name__ == '__main__':
+    print("主进程的pid", os.getpid())
+    manager = multiprocessing.Manager()
+    q = manager.Queue()
+    p = multiprocessing.Pool(1) #初始化进程池
+    p.apply_async(wd, args=(q,))
+    p.apply_async(rd, args=(q,))
+    p.close()
+    p.join()
 ```
