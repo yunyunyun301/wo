@@ -1700,3 +1700,150 @@ if __name__ == '__main__':
     p.close()
     p.join()
 ```
+
+### 16.4 协程
+
+含义：单线程下的开发，又称为微线程
+
+
+
+#### 16.4.1 greenlet 第三方模块
+
+注意：greenlet属于手动切换，当遇到io操作时，程序会阻塞
+#### 16.4.2 通过greenlet实现任务的切换
+
+```py
+from greenlet import greenlet
+def task1():
+    print('哈哈哈')
+    t2.switch()         #切换到t2
+    print('task1继续执行')
+def task2():
+    print('呵呵呵')
+    t1.switch()         #切换到t1
+if __name__=='__main__':
+    t1=greenlet(task1)
+    t2=greenlet(task2)
+    t1.switch()
+```
+
+#### 16.4.3 gevent 模块
+
+遇到io操作时，会自动切换，属于主动式切换。
+
+* gevent.spawn(函数名):创建协程对象
+* gevent.sleep():耗时操作,能自动切换协程对象
+* gevent.join():阻塞，等待某个协程执行结束
+* gevent.joinall():等待所有协程对象都执行结束，参数是一个协程对象列表
+
+```py
+import gevent
+def task1():
+    print('哈哈哈')
+    gevent.sleep(3)
+    print('呵呵呵')
+def task2():
+    print('嘻嘻嘻')
+    gevent.sleep(2)
+    print('hhh')
+if __name__=='__main__':
+    t1=gevent.spawn(task1)
+    t2=gevent.spawn(task2)
+    gevent.joinall([t1,t2])
+    print("程序执行完毕")
+```
+
+#### 16.4.4 monkey补丁：用有在模块运行时替换的功能
+```py
+import gevent
+from gevent import monkey
+import time
+monkey.patch_all()#将用到的time.sleep()替换为gevent.sleep()
+#一定要放在打补丁的对象前面
+def task1():
+    print('哈哈哈')
+    time.sleep(3)
+    print('呵呵呵')
+def task2():
+    print('嘻嘻嘻')
+    time.sleep(2)
+    print('hhh')
+if __name__=='__main__':
+    t1=gevent.spawn(task1)
+    t2=gevent.spawn(task2)
+    gevent.joinall([t1,t2])
+    print("程序执行完毕")
+```
+
+### 16.5 总结
+
+1. 线程是cpu调度的基本单位，进程是资源分配的基本单位
+2. 进程、线程和协程对比
+
+|        |        | 
+|:------:|:------:|
+|进程|切换所需的资源最大，效率最低
+|线程|切换所需的资源一般，效率一般
+|协程|切换所需的资源最小，效率最高
+
+
+3. 多线程适合IO密集型操作(如文件操作，爬虫)，多进程适合cpu密集型操作(科学计算，高清解码)
+4. 进程、线程和协程都可以完成多任务，根据需要灵活切换
+
+## 17.正则表达式（字符串处理工具）
+
+需要导入re模块
+
+### 17.1 re.match
+
+re.match(pattern,string)
+
+* pattern 匹配的正则表达式
+* string 要匹配的字符串
+* 匹配开头的字符  
+* 成功匹配返回match对象，失败返回None
+* 使用group()方法提取数据
+
+```py
+import re
+res=re.match('你','你好')    
+print(res.group())
+```
+
+### 17.2 匹配单个字符
+
+|字符|功能|
+|:------:|:-------:|
+|.|匹配除\n以外任意一个字符|
+|[]|匹配[]中列举的字符
+|\d|匹配数字|
+|\D|匹配非数字|
+|\s|匹配空白|
+|\S|匹配非空白|
+|\w|匹配单词字符
+|\W|匹配非单词字符
+
+1. . 匹配任意字符
+    ```py
+    res = re.match('.e','hello')
+    ```
+2. [] 
+    ```py
+    res = re.match('[he]','hello')
+    ```
+    匹配 0-9
+    [0-9]
+
+    匹配 a-zA-Z
+
+    [a-zA-Z] 列举所有大小写字母
+
+3. \d 匹配数字
+    ```py
+    res = re.match('\d\d','22ss')
+    ```
+4. \s 匹配空格
+5. \w 匹配单词字符,即a-z,A-Z,0-9,_,汉字
+
+### 17.3 匹配多个字符
+
