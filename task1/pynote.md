@@ -1847,3 +1847,260 @@ print(res.group())
 
 ### 17.3 匹配多个字符
 
+1. \* 匹配前一个字符出现0次或者无数次，即可有可无  
+
+    res = re.match('\w*','hello')  
+    
+
+2. \+ 匹配前一个字符出现1次或者无数次，即至少一次
+
+    res = re.match('\w+','hello')
+3.  ？匹配前一个字符出现1次或者0次
+ 
+    res = re.match('\w？','hello')
+4.  {m} 匹配前一个字符出现m次
+
+    res = re.match('\d{3}','211')
+
+
+6.  {m,n} 匹配前一个字符出现从m次到n次
+
+    **注意** 要满足m<n的条件
+
+    res = re.match('\d{3,6}','211')
+
+### 17.4 匹配开头和结尾
+
+1. ^ :匹配字符串开头/表示对...取反,
+
+    res = re.match('[^py]','python')   表示匹配除p,y之外的字符
+
+2. $: 匹配以...结尾
+ 
+    res = re.match('n$','python')  
+
+### 17.5 匹配分组
+
+1. | (或) 匹配左右任意一个表达式 
+
+    res = re.match('abc|def','abcdef')
+    
+    **注意** 先匹配左边的表达式
+2. () 将括号中字符作为一个分组
+
+    res = re.match('\w*@(123|qq).com','123@163.com')
+
+3. \num 匹配分组num匹配到的字符串   ---经常在匹配标签时使用
+
+    res = re.match(r'<(\w*)>\w*</\1>','\<html>login\</html>')
+
+    res = re.match(r'<(\w*)><(\w*)>\w*</\2></\1>','\<html>\<body>login<\/body><\/html>')
+
+   **注意**： 编号从1开始，由外向内排序 
+
+4. (?P<name>) 分组起别名
+5. (?P=name)  引用别名为name分组匹配到的字符串
+
+    res = re.match(r'<(?P<L1>\w*)><(?P<L2>\w*)>\w*</(?P=L2)></(?P=L1)>','\<html>\<body>login<\/body><\/html>')
+
+应用示例：匹配网址
+
+```py
+import re
+li = ['www.baidu.com','www.python.org','http.jd.cn','www.py.en']
+for i in li:
+    res =re.match(r'www(\.)\w*\1(com|cn|org)',i)
+    if res :
+        print(res.group())
+    else :
+        print(f'{i}这个网址有错误')
+```
+
+### 17.6
+
+1. search():扫描整个字符串并返回第一个匹配成功的对象，失败返回None
+2. findall():从头到尾匹配，找到所有匹配成功的数据,返回一个列表
+3. split(pattern,string,maxsplit):按模式分割字符串，返回分割后的列表
+* pattern :正则表达式，要替换的内容
+* string：字符串
+* maxsplit:指定最大分割次数
+
+```py
+import re
+li='apple,banana,peach,pear'
+res =re.split(',',li)
+print(res)      #['apple', 'banana', 'peach', 'pear']
+```
+
+4. sub(pattern,repl,string,count,):替换字符串中所有匹配模式的字串
+* pattern :正则表达式，要替换的内容
+* repl： 新字符串
+* string：字符串
+* count ：指定替换次数
+
+```py
+res =re.sub('\d','n','4565') #将数字替换为n
+```
+
+
+
+5. subn():与sub类似，但返回一个元组（新字符串，替换次数）
+
+
+### 17.7 贪婪与非贪婪
+
+#### 17.7.1 贪婪匹配 (默认)：在满足匹配时，匹配尽可能长的字符串。
+```py
+res = re.match('em*','emmmmmmmmmmm')
+print(res.group())#emmmmmmmmmmm
+```
+#### 17.7.2 非贪婪匹配：在满足匹配时，匹配尽可能短的字符串。使用？来表示非贪婪匹配
+```py
+import re
+res = re.match('em+?','emmmmmmmmmmm')
+print(res.group())#em
+```
+
+### 17.8 原生字符串
+
+正则表达式中，匹配字符串中的字符\需要\\\\\\\ ,原生字符串用\\\\表示
+
+## 18. 常见模块
+
+### 18.1 os模块
+
+#### 18.1.1 作用：负责与操作系统交互
+#### 18.1.2 获取平台信息
+
+1. os.name:指示正在使用的工作平台（返回操作系统类型）
+    
+    对于windows,返回nt，对于linux，返回posix
+
+2. os.getenv(环境变量名称): 读取环境变量
+
+    print(os.getenv('path'))
+
+3. os.path.split() : 把目录名和文件名分离，以元组形式接收，第一个元素是目录路径，第二个元素是文件名
+4. os.path.dirname():目录名
+5. os.path.basename():文件名
+```py
+import os
+li = os.path.split(r'I:\code\pycode\bibao.py')
+print(li[0],li[1])      #I:\code\pycode bibao.py
+print(os.path.dirname(r'I:\code\pycode\bibao.py')) #I:\code\pycode
+print(os.path.basename(r'I:\code\pycode\bibao.py'))#bibao.py
+#如果路径以/结尾，返回空值，如果以\结尾，会报错
+```
+
+6. os.path.exists():判断路径(文件或目录)是否存在，存在返回True,不存在返回False
+7. os.path.isfile():判断文件是否存在
+8. os.path.isdir():判断目录是否存在
+
+```py
+import os
+print(os.path.isfile(r'I:\code\pycode\bibao.py'))#True
+print(os.path.isfile(r'I:\code\pycode'))#False
+print(os.path.isdir(r'I:\code\pycode\bibao.py'))#False
+print(os.path.isdir(r'I:\code\pycode'))#True
+```
+9. os.path.abspath():获取当前路径下文件或路径的绝对路径
+```py
+import os
+print(os.path.abspath(r'bibao.py'))#I:\code\pycode\bibao.py
+```
+
+10. os.path.isabs():判断是否是绝对路径
+```py
+import os
+print(os.path.isabs(r'bibao.py'))#False
+print(os.path.isabs(r'I:\code\pycode\bibao.py'))#True
+```
+
+### 18.2 sys模块
+作用：负责程序与python解释器交互
+
+1. sys.getdefaultencoding():获取系统默认编码格式
+2. sys.path:获取环境变量路径，与解释器相关。以列表形式返回，第一项为当前所在的工作目录
+3. sys.platform :获取操作系统名称
+4. sys.version:获取python解释器版本
+
+### 18.3 time模块
+
+1. 时间戳(timestamp)
+2. 格式化的时间字符串(format time)
+3. 时间元组(struct_time)
+
+#### 18.3.1 time.sleep():延时操作
+#### 18.3.2 time.time():获取时间戳，返回的是浮点型
+#### 18.3.3 time.localtime():将一个时间戳转换为当前时区的struct_time
+```py 
+import time
+t=time.localtime(time.time())
+print(t.tm_year)
+```
+
+#### 18.3.4 time.asctime() :获取系统当前时间，把struct_time换成固定的字符串表达式
+
+#### 18.3.5 time.ctime()：获取系统当前时间，把时间戳转换成固定的字符串表达式
+#### 18.3.6 time.strftime(格式化字符串,struct_time)：将struct_time转换成时间字符串
+```py
+import time
+t=time.localtime(time.time())
+print(time.strftime('%Y年%m月%d日',t))
+```
+#### 18.3.7 time.strptime(时间字符串,格式化字符串)：将时间字符串转换为struct_time
+
+```py
+import time
+print(time.strptime('2026年2月26日','%Y年%m月%d日'))
+```
+
+### 18.4 logging 模块
+1. 作用：用于记录日志信息
+2. 日志作用：
+
+   1. 程序调试
+   2. 了解软件程序运行情况是否正常
+   3. 软件程序运行故障分析与定位
+
+#### 18.4.1 级别排序
+
+CRITICAL>ERROR>WARNING>INFO>DEBUG>NOTEST
+
+```py
+import logging
+logging.debug('我是debug')
+logging.info('我是info')
+logging.warning('我是warning')
+logging.error('我是error')
+logging.critical('我是critical')
+#logging默认的level是warning，只会显示级别大等于warning的日志信息
+```
+#### 18.4.2 logging.basicConfig():配置root logger的参数
+1. filename：指定日志文件的文件名。
+2. filemode:文件的打开模式，默认是追加
+3. level:指定日志显示级别，默认是warning
+4. format:指定日志信息的输出格式
+```py
+import logging
+logging.basicConfig(filename='log.log',filemode='a',level=logging.NOTSET,format='%(levelname)s:%(asctime)s\t%(message)s')
+logging.debug('debug')
+logging.info('info')
+logging.warning('warning')
+logging.error('error')
+logging.critical('critical')
+```
+
+### 18.5 random 模块
+作用：用于实现各种分布的伪随机数生成器，可以根据不同的实数分布来随机生成值
+#### 18.5.1 random.random():产生大于0小于1之间的小数
+#### 18.5.2 random.uniform():产生指定范围的随机小数
+#### 18.5.3 random.randint():产生指定范围的随机整数,闭区间
+#### 18.5.4 random.randrange(start,stop,[step]):产生start，stop范围内的整数，包含start但不包含stop
+```py
+import random
+print(random.random())
+print(random.uniform(1,3))
+print(random.randint(1,3))
+print(random.randrange(2,5,2))
+```
