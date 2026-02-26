@@ -2157,3 +2157,37 @@ print(st[-1::-1])#lkjhgfdsa
 #### 19.4.8 replace(old,new,count):替换指定字符串
 #### 19.4.9 split(sep,maxsplit):按指定分隔符分割字符串
 #### 19.4.10 capitalize():第一个字母大写
+
+## 二十 类型注释
+
+### 20.1语法：变量名:类型
+
+```py
+class Student:
+    def __init__(
+        self,
+        name: str,
+        birthday,
+        sex: str,
+        course: list[str],
+        score: dict[str, float],
+        location: tuple[int, int],
+    ):
+        pass
+#列表、字典和元组可写明元素的类型，元组要写明每个元素的类型
+
+def add(x,y) -> int:   #在说明号前注释
+    return x+y
+```
+
+### 20.2 Literal
+```py
+from typing import Literal
+sex :Literal['male','female']#将sex的值限制在'male','female'
+```
+
+### 20.3 Iterable,Callable
+```py
+x:Callable[[int,int],str]   #输入是两个整型，输出字符串
+#Iterable 可以替代可迭代对象类型
+```
