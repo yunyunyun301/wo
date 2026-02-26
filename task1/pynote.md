@@ -2104,3 +2104,56 @@ print(random.uniform(1,3))
 print(random.randint(1,3))
 print(random.randrange(2,5,2))
 ```
+
+## 十九 字符串
+
+### 19.1 字符串编码：encode()和decode()
+
+```py
+a='hello'
+a1=a.encode() #编码
+print(type(a1))#bytes
+print("编码后:",a1)
+a2=a1.decode()#解码
+print("解码后:",a2)
+```
+
+### 19.2 字符串运算符
+
+|操作符|描述|实例
+|:------:|:------:|:------|
+|+|字符串连接|a+b 输出结果:hellopython
+|*|重复输出字符串|a*2 :hellohello
+|[]|通过索引获取字符串的一部分|a[1]输出e
+|[:]|截取字符串的一部分|a[1:4]输出ell
+
+### 19.3 切片
+语法：[开始位置:结束位置:步长]
+
+左闭右开
+
+```py
+st='asdfghjkl'
+print(st[0:4])#asdf
+print(st[3:])#fghjkl
+print(st[0:6:2])#adg
+print(st[-1:])#l
+print(st[:-1])#asdfghjk
+print(st[-1::-1])#lkjhgfdsa
+```
+
+### 19.4 字符串常见操作
+
+#### 19.4.1 find(string,start,end):在start和end范围中查找
+
+用法：检测某个字符串是否包含在字符串中，存在就返回这个子字符串开始位置的下标，否则返回-1
+
+#### 19.4.2 index():和find用法一样，没找到会报错。
+#### 19.4.3 count():返回某个子字符串在整个字符串出现次数
+#### 19.4.4 lower():大写转小写
+#### 19.4.5 upper():小写转大写
+#### 19.4.6 startswitch(string,start,end):在指定范围检查字符串是否以某个子字符串开头，是返回True,否返回False
+#### 19.4.7 endswitch(string,start,end):在指定范围检查字符串是否以某个子字符串结尾，是返回True,否返回False
+#### 19.4.8 replace(old,new,count):替换指定字符串
+#### 19.4.9 split(sep,maxsplit):按指定分隔符分割字符串
+#### 19.4.10 capitalize():第一个字母大写
