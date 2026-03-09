@@ -11,7 +11,7 @@ turn: int = 1
 
 class Pokemon(object):
     name: str = "未知"
-    attribute: Literal["草", "火", "水", "电", "未知"] = "未知"
+    attribute: Literal["草", "火", "水", "电", "一般","未知"] = "未知"
     is_getdamage: bool = False
     is_madedamage: bool = False
     is_dodge: bool = False
@@ -484,37 +484,6 @@ def is_counter(
         return "被克制"
     return "没有克制关系"
 
-    # if myattribute == "草":
-    #     if opponentattribute == "水":  # 草克水
-    #         return "克制"
-    #     elif opponentattribute == "火":  # 火克草
-    #         return "被克制"
-    #     else:  # 没有克制关系
-    #         return "没有克制关系"
-    # elif myattribute == "火":
-    #     if opponentattribute == "草":  # 火克草
-    #         return "克制"
-    #     elif opponentattribute == "水":  # 水克火
-    #         return "被克制"
-    #     else:  # 没有克制关系
-    #         return "没有克制关系"
-    # elif myattribute == "水":
-    #     if opponentattribute == "火":  # 水克火
-    #         return "克制"
-    #     elif opponentattribute == "电":  # 水被电克
-    #         return "被克制"
-    #     elif opponentattribute == "草":  # 水被草克
-    #         return "被克制"
-    #     else:  # 没有克制关系
-    #         return "没有克制关系"
-    # elif myattribute == "电":
-    #     if opponentattribute == "水":  # 电克水
-    #         return "克制"
-    #     elif opponentattribute == "草":  # 电被草克
-    #         return "被克制"
-    #     else:  # 没有克制关系
-    #         return "没有克制关系"
-
 
 def is_defence(
     opponent: Pokemon, damage: int, counter: Literal["克制", "被克制", "没有克制关系"]
@@ -594,7 +563,7 @@ def Calculatedebuff(pokemon: Pokemon):  # 计算负面状态
         if pokemon.currenthp <= 0:
             pokemon.currenthp = 0
         print(
-            f"{pokemon.name} 受到中毒的影响,减少{int(pokemon.hp*0.125+pokemon.turn*5)}点HP,当前HP:{pokemon.currenthp}/{pokemon.hp}"
+            f"{pokemon.name} 受到中毒的影响,减少{int(pokemon.hp*0.125+pokemon.turn*3)}点HP,当前HP:{pokemon.currenthp}/{pokemon.hp}"
         )
         time.sleep(1)
 
@@ -716,7 +685,7 @@ def gameprepare(me: Pokemon, opponent: Pokemon):
 
 
 def judgesleep_and_action(pokemon: Pokemon, opponent: Pokemon):
-    if pokemon.is_sleep > 0 and judgedodge(0.65):  # 睡觉中有 50% 的几率继续睡觉
+    if pokemon.is_sleep > 0 and judgedodge(0.65):  # 睡觉中有 65% 的几率继续睡觉
         pokemon.is_sleep -= 1
         print(f"{pokemon.name} 睡着了，无法行动！")
     else:
