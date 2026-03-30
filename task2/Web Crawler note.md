@@ -85,10 +85,10 @@ HTTP协议是客户端与服务器之间通信的协议，爬虫通过HTTP协议
 * 302 ：跳转
 * 303：浏览器对post请求重定向至新的URL
 * 307：浏览器对get请求重定向至新的URL
-* 403:资源被禁止访问
-* 404:资源未找到
-* 500:服务器内部错误
-* 503:服务器暂时无法处理请求
+* 403: 资源被禁止访问
+* 404: 资源未找到
+* 500: 服务器内部错误
+* 503: 服务器暂时无法处理请求
 
 #### 4.4.3 常见请求头
 * User-Agent: 浏览器类型和版本信息,用于模拟正常用户
@@ -425,3 +425,70 @@ proxies = {
 response = requests.get("URL", proxies=proxies)
 ```
 代理ip无效时，会使用本机ip发送请求，导致被服务器识别为爬虫而拒绝访问，因此需要定期更新代理ip池，确保代理ip的有效性和匿名性。
+
+### 8.5 代理ip测试
+
+```py
+import requests
+
+url="https://tool.lu/ip/"#ip地址查询接口
+
+headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0'}
+proxies={
+    "https":"67.43.236.18:10873"
+}
+res=requests.get(url,headers=headers,proxies=proxies)
+with open("ip.html","w",encoding="utf-8") as f:
+    f.write(res.text)
+```
+
+## 九.retrying模块和timeout
+
+### 9.1 介绍
+
+retrying模块是一个用于实现重试机制的Python库，可以在请求失败时自动重试，增加爬虫的稳定性和可靠性。
+
+timeout参数是requests模块中的一个参数，用于设置请求的超时时间，防止请求长时间无响应导致爬虫卡死。
+
+### 9.2 retrying模块的使用
+1. 安装retrying模块：
+```
+pip install retrying
+```
+2. 使用retrying模块实现重试机制：--在需要重试的函数上使用@retry装饰器，指定重试的条件和次数。
+```py
+from retrying import retry
+import requests
+
+@retry(stop_max_attempt_number=3) #重试3次
+def test():
+    print("test")
+    url="https://www.zhihu.com/"
+    response = requests.get(url)
+try:
+    test()
+except Exception as e:
+    print("请求失败，错误信息：", e)
+```
+### 9.3 timeout参数的使用
+在发送请求时，可以通过timeout参数来设置请求的超时时间，单位为秒。
+```py
+from retrying import retry
+import requests
+
+@retry(stop_max_attempt_number=3) #重试3次
+def test():
+    print("test")
+    url="https://www.baidus.com/"#故意写错URL，模拟请求失败的情况
+    response = requests.get(url, timeout=5)
+try:
+    test()
+except Exception as e:
+    print("请求失败，错误信息：", e)
+```
+
+## 十.数据提取
+
+### 10.1 异步加载
+定义：异步加载是指网页中的某些数据不是在初始HTML中直接返回的，而是通过JavaScript代码在页面加载后动态获取的。这些数据通常通过AJAX请求从服务器获取，并在页面上进行渲染。
+
