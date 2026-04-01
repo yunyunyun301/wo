@@ -492,3 +492,215 @@ except Exception as e:
 ### 10.1 异步加载
 定义：异步加载是指网页中的某些数据不是在初始HTML中直接返回的，而是通过JavaScript代码在页面加载后动态获取的。这些数据通常通过AJAX请求从服务器获取，并在页面上进行渲染。
 
+### 10.2 文本数据的分类
+
+结构化响应内容
+* json字符串:可以使用re/json模块来提取特定数据
+* xml字符串:可以使用re/lxml模块来提取特定数据
+
+非结构化响应内容
+* html字符串:可以使用re/bs4/lxml模块来提取特定数据
+
+#### html 和 xml的区别
+1. 语法不同：
+   
+   html是一种标记语言，使用标签来定义页面，侧重于显示
+
+    xml侧重于数据存储和传输，使用标签来定义数据结构，没有预定义的标签，用户可以自定义标签。
+
+
+### 10.3 json格式和python格式的互相转换
+
+json格式是一种轻量级的数据交换格式，使用键值对的形式来表示数据，类似于Python中的字典和列表。
+
+特点：
+1. 易于阅读和编写：json格式使用简单的语法，易于阅读和编写。
+2. 语言无关：json格式可以被多种编程语言支持，适用于不同语言之间的数据交换。
+3. 支持复杂数据结构：json格式可以表示复杂的数据结构，如嵌套的对象和数组。
+
+```py
+import json
+
+# json字符串转python对象
+dic = {"name": "张三"}
+dic2 = json.dumps(dic, ensure_ascii=False)  # 将python对象转换为json字符串
+print(dic2)
+# python对象转json字符串
+dic3 = json.loads(dic2)
+print(dic3)
+print(type(dic3))
+# json字符串转python对象
+
+```
+json模块的函数：
+* json.dump():将python对象写入文件，参数包括python对象和文件对象。
+* json.load():从文件中读取json数据并转换为python对象。
+* json.dumps():将python对象转换为json字符串，参数包括python对象和ensure_ascii参数，默认值为True，表示将非ASCII字符转换为\uXXXX的形式，如果设置为False，则保留原有字符。
+* json.loads():将json字符串转换为python对象，参数包括json字符串。
+### 10.4 jsonpath模块
+jsonpath模块是一个用于提取json数据的Python库，可以通过类似于XPath的语法来提取json数据中的特定部分。
+
+#### 10.4.1 jsonpath模块的使用
+1. 安装jsonpath模块：
+```
+pip install jsonpath
+```
+2. 语法规则
+
+
+| jsonpath表达式 | 说明 |
+| --- | --- |
+| $ | 根节点 |
+| . | 访问子节点 |
+| [] | 访问数组元素 |
+| * | 通配符，匹配所有元素 |
+| [start:end] | 访问数组切片 |
+| [?(expression)] | 过滤表达式，返回满足条件的元素 |
+| .. | 递归搜索 |
+| @ | 当前节点 |
+| \| | 逻辑运算符，支持&&（与）、\|\|（或） |
+| [index] | 访问数组中指定索引的元素 |
+| [key] | 访问对象中指定键的值 |
+| [key1,key2,...] | 访问对象中多个键的值 |
+| [*] | 访问数组中所有元素 |
+```json
+# 示例json数据
+json_data = {
+    "store": {
+        "book":[
+            {"title": "Book 1", "price": 10},
+            {"title": "Book 3","price": 30},
+            {"title": "Book 2", "price": 20}
+        ]
+    }
+}
+```
+|jsonpath|result|
+|---|---|
+|$.store.book[*].title|store下book数组中的所有元素的title|
+|$.store..book|所有book元素|
+|$.store.*|store下的所有元素|
+|$.store..price|store下所有元素的price|
+|$..book[2]|store下book数组中的第3个元素|
+|$..book[(@.length-1)]\|$..book[-1:]|store下book数组中的最后一个元素|
+|$..book[0,1]\|$..book[:2]|store下book数组中的前两个元素|
+|$..book[?(@.price<20)]|store下book数组中price小于20的元素|
+|$..book[?(@.title)]|store下book数组中title不为空的元素|
+|$..*|store下的所有元素|
+
+
+3. 使用jsonpath模块提取json数据：--通过jsonpath.jsonpath()函数来提取json数据中的特定部分，参数包括json数据和jsonpath表达式。
+```py
+import jsonpath
+
+# 示例json数据
+json_data = {
+    "store": {
+        "book":[
+            {"title": "Book 1", "price": 10},
+            {"title": "Book 3","price": 30},
+            {"title": "Book 2", "price": 20}
+        ]
+    }
+}
+
+# 使用jsonpath提取数据
+titles = jsonpath.jsonpath(json_data, '$.store.book[*].title')
+print(titles)
+prices = jsonpath.jsonpath(json_data, '$.store.book[?(@.price<20)].title')
+print(prices)
+```
+### 10.5 Xpath模块
+
+#### 10.5.1 Xpath模块的使用
+1. 安装lxml模块：
+```
+pip install lxml
+```
+2. 导入模块
+
+    1. 导入lxml.etree模块：用于解析HTML和XML文档。
+    2. 利用etree.HTML()解析HTML文档，返回一个Element对象。
+    3. 使用Element对象的xpath()方法来提取数据，参数是一个XPath表达式，返回一个列表，包含所有匹配的元素。
+    
+    另外一种：
+    1. 导入lxml.html模块：用于解析HTML文档。
+    2. 利用lxml.html.fromstring()解析HTML文档，返回一个Element对象。
+    3. 使用Element对象的xpath()方法来提取数据，参数是一个XPath表达式，返回一个列表，包含所有匹配的元素。
+
+
+3. XPath表达式的语法规则 [详见Xpath.md](Xpath.md)
+
+4. 使用
+```py
+from lxml import etree
+html = "获取的HTML字符串"
+tree = etree.HTML(html)  # 解析HTML字符串，返回一个Element对象
+response = tree.xpath('XPath表达式')  # 使用xpath()方法提取数据，返回一个列表
+```
+
+## 十一.反反爬
+
+**反爬虫**是指网站采取的一系列措施来防止爬虫程序访问和获取数据的行为。常见的反爬虫措施包括：
+
+1. IP封禁：通过监控访问频率和行为模式，封禁可疑的IP地址。
+2. User-Agent检测：检查请求头中的User-Agent字段，识别和阻止爬虫程序。
+3. 验证码：要求用户输入验证码来验证是否为人类访问。
+4. 动态内容加载：通过JavaScript动态加载内容，增加爬取难度。
+5. 反爬虫机制：如使用robots.txt文件来限制爬虫访问特定页面或目录。
+6. 数据加密：对数据进行加密处理，增加爬取难度。
+7. 频率限制：限制单位时间内的访问次数，防止过于频繁的请求。
+
+**反反爬虫**是指爬虫程序采取的一系列措施来绕过网站的反爬虫机制，成功获取数据的行为。常见的反反爬虫措施包括：
+1. user-agent伪装：通过修改请求头中的User-Agent字段，模拟正常用户的请求。
+2. IP代理：使用代理服务器来隐藏真实IP地址，绕过IP封禁
+3. referer伪装：通过修改请求头中的referer字段，模拟正常用户的访问来源。
+4. cookie模拟：通过添加cookie信息来模拟登录状态，绕过验证码和登录限制。
+5. 模拟浏览器行为：使用Selenium等工具模拟浏览器的行为，如点击、滚动等，绕过动态内容加载和反爬虫机制。
+
+### 11.1 js加密
+
+有些网站会对数据进行js加密，爬虫需要通过分析js代码来解密数据，才能获取到需要的数据。
+
+### 11.2 hashlib模块
+哈希值概念：哈希值是通过哈希算法对数据进行计算得到的一串固定长度的字符串，具有唯一性和不可逆性，可以用于数据的验证和安全存储。
+
+hashlib模块是Python标准库中的一个模块，提供了多种哈希算法，如MD5、SHA1、SHA256等，可以用于生成数据的哈希值。
+
+* MD5算法是一种常用的哈希算法，生成一个128位的哈希值，通常用于数据的完整性验证和密码存储。
+* 加盐是指在原始数据的基础上添加一个随机字符串（盐），然后再进行哈希计算，以增加哈希值的复杂性和安全性，防止被暴力破解。
+
+```py
+import hashlib
+st = 'hello world'
+res=hashlib.new('md5',st.encode('utf-8'))
+print(res.digest())#返回二进制数据
+print(res.hexdigest())#返回十六进制数据
+
+#md5使用
+res2=hashlib.md5(st.encode())
+print(res.digest())#返回二进制数据
+print(res.hexdigest())#返回十六进制数据
+    
+```
+
+### 11.3 base64模块
+base64模块是Python标准库中的一个模块，提供了Base64编码和解码的功能，可以用于在网络传输中对数据进行编码和解码。
+
+特点：
+
+1. 可逆性：Base64编码是可逆的，可以通过解码还原原始数据。
+2. 可读性：Base64编码后的数据由字母、数字和一些特殊
+
+* 使用
+```py
+import base64
+st = 'hello world'
+# base64编码
+a1=base64.b64encode(st.encode('utf-8'))
+print(a1)  # 输出: b'aGVsbG8gd29ybGQ
+# base64解码
+a2=base64.b64decode(a1).decode('utf-8')
+print(a2)  # 输出: hello world
+```
+
