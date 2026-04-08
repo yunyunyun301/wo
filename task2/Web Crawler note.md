@@ -713,3 +713,284 @@ Ajax（Asynchronous JavaScript and XML）是一种在不重新加载整个页面
 * 异步：指在发送请求后，不需要等待服务器的响应，可以继续执行其他操作，服务器响应后再处理结果。
 * 无刷新：指在页面不重新加载的情况下更新部分内容，避免了页面的闪烁和等待时间。
 * XMLHttpRequest对象：是实现Ajax请求的核心对象，提供了发送HTTP请求和处理服务器响应的方法和属性。
+## 十三. Selenium模块
+
+Selenium是一个用于自动化测试和爬取动态网页的Python库，可以模拟浏览器的行为，如点击、滚动等，绕过动态内容加载和反爬虫机制。
+
+### 13.1 Selenium模块的安装和使用
+
+1. 安装浏览器驱动：根据使用的浏览器类型，下载对应的浏览器驱动，如ChromeDriver、GeckoDriver等，并将其路径添加到系统环境变量中。
+
+或者下载对应浏览器的webdriver-manager库，自动管理浏览器驱动：
+```
+pip install webdriver-manager
+```
+2. 导包(以edge浏览器为例)
+```py
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+from selenium.webdriver.edge.options import Options #用于设置浏览器选项
+```
+3. 创建浏览器对象
+```py
+def setup():#创建浏览器对象的函数
+    options = Options()
+    options.add_argument("--no-sandbox")  #禁用沙盒模式（增加系统兼容性）
+    options.add_argument("--headless")  #（可选）启用无头模式（不显示浏览器界面）
+    options.add_experimental_option(name='detach', value=True)  #保持浏览器打开状态
+    driver = webdriver.Edge(options=options)  #创建Edge浏览器对象
+    driver.implicitly_wait(10)#设置隐形式等待时间，单位为秒，在查找元素时，如果元素没有立即出现，Selenium会等待一段时间，直到元素出现或者超时
+    return driver
+```
+
+### 13.2 打开网页
+```py
+driver.get("https://www.baidu.com/")  #打开网页
+driver.close()#关闭当前标签页
+driver.quit()#关闭浏览器
+```
+#### 13.2.1 打开多个标签页
+```py   
+driver.get("https://www.baidu.com/")  #打开第一个网页
+driver.execute_script("window.open('https://www.google.com/')")  #打开第二个网页
+```
+### 13.3 最大化最小化窗口、打开位置、窗口大小调整、截图、刷新
+最大化和最小化窗口可以通过driver对象的maxmize_window()和minimize_window()方法来实现。
+```py
+driver.maximize_window()  #最大化窗口
+driver.minimize_window()  #最小化窗口
+```
+打开位置可以通过driver对象的set_window_position()方法来实现，参数包括x和y坐标。
+```py
+driver.set_window_position(x=100, y=100)  # 设置窗口位置
+```
+窗口大小调整可以通过driver对象的set_window_size()方法来实现，参数包括宽度和高度。
+```py
+driver.set_window_size(width=800, height=600)  # 设置窗口大小
+```
+截图可以通过driver对象的save_screenshot()方法来实现，参数是保存截图的文件路径。
+
+以及get_screenshot_as_file()方法，参数是保存截图的文件路径，返回值是一个布尔值，表示截图是否成功保存。
+```py
+driver.save_screenshot("screenshot.png")  # 保存截图
+driver.get_screenshot_as_file("screenshot.png")  # 保存截图，返回值表示是否成功保存
+```
+刷新可以通过driver对象的refresh()方法来实现。
+```py
+driver.refresh()  # 刷新页面
+```
+### 13.4 元素定位
+元素定位是指在网页中找到特定的元素，以便对其进行操作。
+```py
+from selenium.webdriver.common.by import By#导入By类，用于指定元素定位方式
+```
+通过find_element()和find_elements()方法来定位元素，参数包括By类和定位方式的值，返回一个WebElement对象，可以对其进行操作。
+
+八种元素定位方式：
+1. By.ID:通过元素的id属性来定位元素。
+2. By.NAME:通过元素的name属性来定位元素。
+3. By.CLASS_NAME:通过元素的class属性来定位元素。
+4. By.TAG_NAME:通过元素的标签名来定位元素。
+5. By.LINK_TEXT:通过元素的链接文本来定位元素。
+6. By.PARTIAL_LINK_TEXT:通过元素的部分链接文本来定位元素。
+7. By.CSS_SELECTOR:通过元素的CSS选择器来定位元素。
+8. By.XPATH:通过元素的XPath表达式来定位元素。
+#### 13.4.1 通过ID定位元素
+```py
+element = driver.find_element(By.ID, "element_id")  # 通过ID定位元素,找不到会抛出NoSuchElementException异常
+```
+#### 13.4.2 通过CLASS_NAME定位元素
+class属性是HTML元素的一个属性，可以包含多个类名，用于定义元素的样式和行为。
+比如：
+```html
+<div class="element_class element_class_name">...</div>
+```
+通过class属性定位元素
+```py
+element = driver.find_element(By.CLASS_NAME, "element_class")  # 通过class属性定位元素,找不到会抛出NoSuchElementException异常
+#class属性不能包含空格，要使用下划线
+elementlist= driver.find_elements(By.CLASS_NAME, "element_class_name")  #class有多个属性值时，使用find_elements()方法返回一个列表，包含所有匹配的元素，通过切片来获取特定的元素
+
+```
+#### 13.4.3 通过TAG_NAME定位元素
+通过标签名定位元素
+```py
+element = driver.find_element(By.TAG_NAME, "input")  # 通过标签名定位元素,找不到会抛出NoSuchElementException异常
+```
+#### 13.4.4 通过LINK_TEXT定位元素
+通过链接的文本精准定位元素
+```py
+element = driver.find_element(By.LINK_TEXT, "点击这里")  # 通过链接文本定位元素,找不到会抛出NoSuchElementException异常
+```
+#### 13.4.5 通过PARTIAL_LINK_TEXT定位元素
+通过链接的部分文本模糊定位元素
+```py
+element = driver.find_element(By.PARTIAL_LINK_TEXT, "点击")  # 通过部分链接文本定位元素,找不到会抛出NoSuchElementException异常
+```
+#### 13.4.6 通过CSS_SELECTOR定位元素
+通过CSS选择器定位元素
+
+* 井号加id值，通过id定位元素
+
+* 点号加class值，通过class定位元素
+
+* 不加符号加标签名，通过标签名定位元素
+* 属性选择器，通过元素的属性和值来定位元素
+
+    [属性名=属性值]：匹配具有指定属性名和属性值的元素。
+    
+    [属性名*=属性值]：匹配具有指定属性名且属性值包含指定字符串的元素。
+    
+    [属性名^=属性值]：匹配具有指定属性名且属性值以指定字符串开头的元素。
+    
+    [属性名$=属性值]：匹配具有指定属性名且属性值以指定字符串结尾的元素。
+* 通过selector组合定位元素
+```py
+element = driver.find_element(By.CSS_SELECTOR, "div.classname")  # 通过CSS选择器定位元素,找不到会抛出NoSuchElementException异常
+```
+#### 13.4.7 通过XPATH定位元素
+通过XPath表达式定位元素
+```py
+element = driver.find_element(By.XPATH, "//div[@class='classname']")  # 通过XPath表达式定位元素,找不到会抛出NoSuchElementException异常
+```
+### 13.5 元素交互操作
+元素交互操作是指对定位到的元素进行点击、输入文本、获取属性等操作。
+#### 13.5.1 点击元素和清空输入框
+```py
+element.click()  # 点击元素
+element.clear()  # 清空输入框
+```
+#### 13.5.2 输入文本
+```py
+element.send_keys("输入的文本")  # 输入文本
+```
+#### 13.5.3 获取元素属性
+```py
+attribute_value = element.get_attribute("属性名")  # 获取元素的属性值
+```
+#### 13.5.4 获取元素文本
+```py
+text = element.text  # 获取元素的文本内容
+```
+#### 13.5.5 获取元素标签名
+```py
+tag_name = element.tag_name  # 获取元素的标签名
+```
+#### 13.5.6 获取元素位置和大小
+```py
+location = element.location  # 获取元素的位置
+size = element.size  # 获取元素的大小
+```
+#### 13.5.7 上传文件
+```py
+element.send_keys("文件路径")  # 上传文件，参数是要上传的文件的绝对路径
+```
+### 13.6 显式等待和隐式等待
+等待是指在执行操作之前，等待某个条件满足后再继续执行，以确保操作的成功和稳定性。
+#### 13.6.1 显式等待
+显式等待是指在代码中明确指定等待的条件和时间，直到条件满足或超时后继续执行。
+
+使用WebDriverWait类和expected_conditions模块来实现显式等待，参数包括浏览器对象、等待时间和等待条件。
+```py
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+wait = WebDriverWait(driver, 10)  # 创建WebDriverWait对象，等待时间为10秒
+element = wait.until(EC.presence_of_element_located((By.ID, "element_id")))  # 等待元素出现，返回元素对象
+```
+#### 13.6.2 隐式等待
+隐式等待是指在创建浏览器对象时设置一个全局的等待时间，在查找元素时，如果元素没有立即出现，浏览器会等待指定的时间，直到元素出现或超时后继续执行。
+
+使用driver对象的implicitly_wait()方法来设置隐式等待时间，参数是等待的时间，单位为秒。
+```py
+driver.implicitly_wait(10)  # 设置隐式等待时间为10秒
+element = driver.find_element(By.ID, "element_id")  # 查找元素，如果元素没有立即出现，浏览器会等待指定的时间，直到元素出现或超时后继续执行
+``` 
+### 13.7 获取句柄和切换标签页
+句柄是指浏览器中每个窗口或标签页的唯一标识，可以通过句柄来切换不同的窗口或标签页。
+```py
+handle = driver.current_window_handle  # 获取当前窗口或标签页的句柄
+handles = driver.window_handles  # 获取所有窗口或标签页的句柄
+driver.switch_to.window(handles[0])  # 切换到指定的窗口或标签页
+```
+### 13.8 获取页面源代码和当前URL
+```py
+page_source = driver.page_source  # 获取页面源代码
+current_url = driver.current_url  # 获取当前URL
+```
+### 13.9 警告框和弹窗处理
+```py
+from selenium.webdriver.common.alert import Alert
+alert = Alert(driver)  # 创建Alert对象
+alert.accept()  # 接受警告框
+alert.dismiss()  # 取消警告框
+driver.switch_to.alert.accept()  # 点击确定按钮
+driver.switch_to.alert.dismiss()  # 点击取消按钮
+print(alert.text)    #获取到警告框的文本内容
+driver.switch_to.alert.send_keys("输入的文本")  #输入文本到警告框
+```
+### 13.10 iframe嵌套界面
+
+iframe是指在一个HTML页面中嵌套另一个HTML页面的元素，可以通过切换到iframe来操作其中的元素。
+```py
+iframe = driver.find_element(By.TAG_NAME, "iframe")  # 定位到iframe元素
+driver.switch_to.frame(iframe)  # 切换到iframe
+driver.switch_to.default_content()  # 切换回主页面
+```
+### 13.11 网页前进和后退
+```py
+driver.back()  # 网页后退
+driver.forward()  # 网页前进
+```
+### 13.12 网页滚动和鼠标操作
+```py
+from selenium.webdriver.common.action_chains import ActionChains
+actions = ActionChains(driver)  # 创建ActionChains对象
+actions.move_to_element(element).perform()  # 鼠标移动到指定元素
+actions.click(element).perform()  # 点击指定元素
+actions.double_click(element).perform()  # 双击指定元素
+actions.context_click(element).perform()  # 右键点击指定元素
+actions.move_by_offset(xoffset, yoffset).perform()  # 鼠标移动到指定偏移位置
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")  # 滚动到页面底部
+driver.execute_script("window.scrollTo(0, 0);")  # 滚动到页面顶部
+#滚动一定距离
+driver.execute_script("window.scrollBy(0, 100);")  # 向下滚动100像素
+```
+## 十四.api接口
+API接口是指应用程序编程接口，是一组定义了软件组件之间如何交互的规范和协议。API接口允许不同的软件系统之间进行通信和数据交换，使得开发者可以利用已有的功能和数据来构建新的应用程序。
+### 14.1 API接口的使用
+1. 了解API接口：首先需要了解API接口的功能、参数和返回值
+2. 获取API接口的URL地址：通过API文档或开发者工具获取API接口的URL地址。
+3. 发送请求：使用requests模块或其他HTTP库来发送请求，参数包括URL地址、请求方法、请求头和请求体等。
+4. 解析响应：根据API接口的返回格式，使用相应的解析方法来提取需要的数据。
+5. 错误处理：根据API接口的错误码和错误信息，进行相应的错误处理和异常捕获。
+### 14.2 API接口的认证和授权
+有些API接口需要进行认证和授权，才能访问和获取数据。常见的认证和授权方式包括：
+1. API Key认证：通过在请求头或请求参数中添加API Key来进行认证，API Key是由API提供者生成的一串唯一的字符串，用于识别和授权用户。
+2. OAuth认证：通过OAuth协议来进行认证和授权，OAuth是一种开放的授权协议，允许用户授权第三方应用访问其资源，而不需要暴露用户名和密码。
+3. JWT认证：通过JSON Web Token来进行认证和授权，JWT是一种基于JSON的开放标准，用于在网络应用环境中传递声明，通常用于身份验证和信息交换。
+### 14.3 API接口的速率限制
+API接口的速率限制是指API提供者对API接口的访问频率进行限制，以防止滥用和保护服务器资源。
+### 14.4 API接口的版本控制
+API接口的版本控制是指在API接口的URL地址中添加版本号，以便在API接口发生变化时，保持向后兼容性，避免对现有应用程序造成影响。
+### 14.5 API接口的文档和测试
+API接口的文档是指对API接口的功能、参数、返回值和使用方法进行详细说明的文档，通常由API提供者编写和维护。API接口的测试是指对API接口进行功能测试、性能测试和安全测试等，以确保API接口的正确性、稳定性和安全性。
+### 14.6 API接口的错误处理和异常捕获
+API接口的错误处理是指根据API接口的错误码和错误信息，进行相应的错误处理和异常捕获，以提高应用程序的健壮性和用户体验。
+### 14.7 例子 deepseekAPI接口的使用
+deepseekAPI接口是一个提供了多种数据分析和处理功能的API接口，可以用于文本分析、图像识别、语音识别等领域。
+```py
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key='',
+    base_url="https://api.deepseek.com")
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[{"role": "user", "content": "hello"}],
+    stream=False
+)
+
+print(response.choices[0].message.content)
+```
