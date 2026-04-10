@@ -738,7 +738,7 @@ def setup():#创建浏览器对象的函数
     options.add_argument("--no-sandbox")  #禁用沙盒模式（增加系统兼容性）
     options.add_argument("--headless")  #（可选）启用无头模式（不显示浏览器界面）
     options.add_experimental_option(name='detach', value=True)  #保持浏览器打开状态
-    driver = webdriver.Edge(options=options)  #创建Edge浏览器对象
+    driver = webdriver.Edge(service=Service('msedgedriver.exe'),options=options)  #创建Edge浏览器对象
     driver.implicitly_wait(10)#设置隐形式等待时间，单位为秒，在查找元素时，如果元素没有立即出现，Selenium会等待一段时间，直到元素出现或者超时
     return driver
 ```
@@ -994,3 +994,4 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 ```
+ 
