@@ -34,38 +34,64 @@ def setup():#创建浏览器对象的函数
         driver.add_cookie({"name": name, "value": value})#将cookie字符串分割成键值对，并使用add_cookie方法将每个cookie添加到浏览器中
     driver.refresh()#刷新页面，使添加的cookie生效
     return driver
-def switch_to_new_window(driver):#切换到新打开的窗口或标签页的函数
-    handles = driver.window_handles  # 获取所有窗口或标签页的句柄
-    driver.switch_to.window(handles[-1])  # 切换到最后一个窗口或标签页
+def switch_to_new_window(driver, x, oldurl=None):#切换到新打开的窗口或标签页的函数
+    handles = list(driver.window_handles)  # 获取所有窗口或标签页的句柄
+    driver.switch_to.window(handles[x])  # 切换到指定窗口或标签页
+    print(f"从{oldurl}切换到{driver.current_url}")#打印切换前后的URL
 driver = setup()#调用setup函数创建浏览器对象
 wait = WebDriverWait(driver, 10)  # 创建WebDriverWait对象，等待时间为10秒
+driver.get("https://www.zhihu.com/topics")#打开知乎话题广场
 
-driver.get("https://www.zhihu.com/topics")#打开知乎首页
 time.sleep(random.randint(2, 5))#等待页面加载完成
-driver.find_element(By.XPATH,value="/html/body/div[3]/div[2]/div[1]/div/ul/li[3]/div[1]/a").click()#通过部分链接文本定位到“机器学习”话题，并点击进入
-switch_to_new_window(driver)#切换到新打开的窗口或标签页
-print(driver.current_url ) # 获取当前URL)
-driver.find_element(By.PARTIAL_LINK_TEXT,value="等待回答").click()
-driver.find_element(By.XPATH,value="//div[@class='List']//a[@href]").click()#点击第一个问题进入问题详情页
-switch_to_new_window(driver)#切换到新打开的窗口或标签页
-print(driver.current_url ) # 获取当前URL)
-title=driver.find_element(By.XPATH,value="//*[@id='root']/div/main/div/div/div[1]/div[2]/div/div[1]/div[1]/h1").text
-print(title)#打印问题标题
-while True:
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")#将页面滚动到最底部，以加载更多内容
-    content=driver.find_elements(By.ID,value="content")
-    if len(content)>10:#如果页面上已经加载了内容，就跳出循环
-        break
-with open("zhihu.csv","w",encoding="utf-8") as f:#将问题内容保存到zhihu.cvs文件中
-    f.write(title+"\n")#先写入问题标题
-    num=0
-    for i in content:
-        f.write(i.text+"\n")
-        num+=1
-        f.write(f"第{num}条回答\n")#写入每条回答的内容，并在每条回答后面写入回答的序号
-        
-driver.close()#关闭当前窗口或标签页
-switch_to_new_window(driver)
-print(driver.current_url ) # 获取当前URL
-time.sleep(random.randint(2, 5))#等待页面加载完成
+n=0
+while n<=10:
+    topics=driver.find_elements(By.XPATH,value=f"//div[@class='zh-general-list clearfix']//strong")
+    topics[n].click()#点击话题进入话题详情页
+    n+=1
+    switch_to_new_window(driver,-1,driver.current_url)#切换到新打开的窗口或标签页
+    time.sleep(random.randint(1,3))#等待页面加载完成
+    driver.find_element(By.PARTIAL_LINK_TEXT,value="等待回答").click()
+
+    time.sleep(random.randint(1,3))#等待页面加载完成
+    try:
+        driver.find_element(By.XPATH,value="//div[@class='List']//a[@href]").click()#点击第一个问题进入问题详情页
+    except:
+        print("系统繁忙，请稍后再试！直接关闭当前窗口，继续爬取下一个话题！")
+        driver.close()
+        switch_to_new_window(driver,0)#切换到第一个标签页,即话题广场
+        time.sleep(random.randint(2, 5))#等待页面加载完成
+        continue
+    switch_to_new_window(driver,-1,driver.current_url)#切换到新打开的窗口或标签页
+    title=driver.find_element(By.XPATH,value="//*[@id='root']/div/main/div/div/div[1]/div[2]/div/div[1]/div[1]/h1").text
+    try:
+        driver.find_element(By.XPATH,value="//div[@class='QuestionHeader-main']//button").click()#点击显示全部按钮，展开问题描述内容
+        question=driver.find_element(By.XPATH,value="//div[@class='QuestionHeader-main']//span[@id='content']").text#获取问题的描述内容
+    except:
+        print("未能找到显示全部按钮！")
+        question = "没有找到问题描述！"
+
+    # driver.find_element(By.CLASS_NAME, value="QuestionHeader-Comment").click()#点击问题描述下的评论按钮，展开评论区  
+    # time.sleep(random.randint(1,3))#等待页面加载完成
+    # commit=driver.find_elements(By.CLASS_NAME, value="CommentContent_css-tgyln6")
+    # print(commit[0].text)#打印第一条评论的内容
+    # driver.find_element(By.XPATH,value="/html/body/div[5]/div/div/div[2]/button/svg/path").click()
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")#将页面滚动到最底部，以加载更多内容
+        content=driver.find_elements(By.ID,value="content")
+        if len(content)>10:#如果页面上已经加载了内容，就跳出循环
+            break
+    with open("zhihu.csv","a",encoding="utf-8") as f:#将问题内容保存到zhihu.cvs文件中
+        f.write(f"问题标题: {title}\n\n")#先写入问题标题
+        f.write(f"问题描述: {question}\n\n")#写入问题描述
+        num=0
+        for i in content[1:]:
+            f.write(i.text+"\n")
+            num+=1
+            f.write(f"-------------------第{num}条回答-------------------\n")#写入每条回答的内容，并在每条回答后面写入回答的序号
+            
+    driver.close()#关闭当前窗口或标签页
+    switch_to_new_window(driver,-1)
+    driver.close()#关闭当前窗口或标签页
+    switch_to_new_window(driver,0)#切换到第一个标签页,即话题广场
+    time.sleep(random.randint(2, 5))#等待页面加载完成
 driver.quit()#关闭浏览器对象，结束程序运行
