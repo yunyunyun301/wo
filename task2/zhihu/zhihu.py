@@ -54,7 +54,7 @@ driver.get("https://www.zhihu.com/topics")#打开知乎话题广场
 
 time.sleep(random.randint(2, 5))#等待页面加载完成
 n=0
-with open("zhihu1.csv","w",encoding="utf-8") as f:#将问题内容保存到zhihu1.csv文件中
+with open("zhihu.csv","w",encoding="utf-8") as f:#将问题内容保存到zhihu.csv文件中
     while n<=15:#爬取前15个话题的内容    
         topics=driver.find_elements(By.XPATH,value=f"//div[@class='zh-general-list clearfix']//strong")
         print(f"正在爬取第{n+1}个话题：{topics[n].text}......")#打印正在爬取的话题名称
@@ -72,6 +72,7 @@ with open("zhihu1.csv","w",encoding="utf-8") as f:#将问题内容保存到zhihu
             wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='List']//a[@href]"))).click()#点击第一个问题进入问题详情页
         except:
             print("系统繁忙，请稍后再试！直接关闭当前窗口，继续爬取下一个话题！")
+            n+=1
             driver.close()
             switch_to_new_window(driver,0)#切换到第一个标签页,即话题广场
             time.sleep(random.randint(2, 5))#等待页面加载完成
