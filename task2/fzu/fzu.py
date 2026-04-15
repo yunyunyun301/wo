@@ -66,33 +66,3 @@ with open('nifu.csv','w+',encoding='utf-8') as f:
         count-=1   
 
 print("总耗时",f"{altime:.6f}","秒")
-              
-
-
-
-
-
-    
-# try:         
-# response=requests.get('https://jwch.fzu.edu.cn/info/1040/9108.htm')
-# tree = html.fromstring(response.content.decode('utf-8'))
-# titles=tree.xpath("//h4/text()")                           #提取标题
-# attachment=tree.xpath("//li/a[@href]/text()")              #提取附件标题
-
-# attachmenturl=tree.xpath("//li/a/@href")                   #提取附件链接
-
-# wbnewsid=tree.xpath("//li/span[@id]/@id")    #提取id
-# cleaned_wbnewsid=[res.group() for i in wbnewsid if (res:=re.search(r'\d+', i))] #提取数字部分作为wbnewsid
-# clicktimes=[]
-# for i in cleaned_wbnewsid:
-#     content=requests.get(f'https://jwch.fzu.edu.cn/system/resource/code/news/click/clicktimes.jsp?wbnewsid={i}&owner=1744984858&type=wbnewsfile&randomid=nattach')   #获取点击次数的网页内容
-#     clicktimes.append(jsonpath.jsonpath(content.json(), '$.wbshowtimes')[0])  #提取点击次数
-# date=tree.xpath("//span[@class='xl_sj_icon']/text()")      #提取发布时间
-# signature=[tree.xpath(f"string(//*[@id='vsb_content']/div/p[7])")  ]   #提取落款
-# print(signature)
-# for i in range(15):
-#     signature.append(tree.xpath(f"string(//div[@class='v_news_content']//p[last()-{i}])") )   #提取落款最后一行
-# Notifier=[i.strip().replace('\n', '').replace('\t', '').replace('\r', '') for i in signature if re.search(r'教学质量监控与评估中心|教务处|教学运行科', str(i))]    #提取通知人
-# print(Notifier[0])
-# finally:
-#     driver.quit()
